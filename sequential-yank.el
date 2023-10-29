@@ -33,11 +33,20 @@
 
 ;;; Commentary:
 ;;
-;; In `sequantial-yank-mode', killed strings are stored in a global
-;; queue and so they can later be yanked sequentially with the
+;; This package provides a global minor mode to copy and paste strings
+;; sequentially.
+;;
+;; In `sequential-yank-mode', every killed/copied string is stored in
+;; a global queue so they can later be yanked sequentially with the
 ;; `sequential-yank' command.
+;;
+;; Support for multiple-cursors is built in.
 
 ;;; Code:
+
+(require 'cl-lib)
+
+(defvar sequential-yank-mode)
 
 (defvar sequential-yank-queue nil
   "The sequential yank queue.")
@@ -75,7 +84,15 @@ REPLACE is supported."
         (sequential-yank:replace cur-kill)
       (sequential-yank:push cur-kill))))
 
-(defvar sequential-yank-mode)
+(defun sequential-yank:auto-quit-maybe ()
+  (remove-hook 'post-command-hook #'sequential-yank:auto-quit-maybe t)
+  (when (and sequential-yank-mode
+             (null sequential-yank-queue)
+             (or (not (bound-and-true-p multiple-cursors-mode))
+                 (cl-loop for cursor in (mc/all-fake-cursors)
+                          always (null (overlay-get cursor 'sequential-yank-queue)))))
+    (sequential-yank-mode -1)
+    (message "Sequential yank finished.")))
 
 (defun sequential-yank (arg)
   "Yank a string sequentially from the sequential yank queue.
@@ -86,20 +103,19 @@ mark at end, just like `yank'."
   (or sequential-yank-mode
       (error "Not in sequential-yank-mode"))
   (let ((string (sequential-yank:pop)))
-    (or string
-        (error "Sequential yank queue is empty"))
-    (setq yank-window-start (window-start))
-    (setq this-command t)
-    (push-mark)
-    (insert-for-yank string)
-    (if (consp arg)
-        (goto-char (prog1 (mark t)
-		     (set-marker (mark-marker) (point) (current-buffer)))))
-    (if (eq this-command t)
-        (setq this-command 'yank))
-    (unless sequential-yank-queue
-      (sequential-yank-mode -1)
-      (message "Sequential yank finished."))
+    (if (null string)
+        (message "Sequential yank queue is empty.")
+      (setq yank-window-start (window-start))
+      (setq this-command t)
+      (push-mark)
+      (insert-for-yank string)
+      (if (consp arg)
+          (goto-char (prog1 (mark t)
+		       (set-marker (mark-marker) (point) (current-buffer)))))
+      (if (eq this-command t)
+          (setq this-command 'yank))
+      (or sequential-yank-queue
+          (add-hook 'post-command-hook #'sequential-yank:auto-quit-maybe t t)))
     nil))
 
 (defvar sequential-yank-mode-map
@@ -122,6 +138,7 @@ mark at end, just like `yank'."
 
 (with-eval-after-load 'multiple-cursors
   (add-to-list 'mc/cursor-specific-vars 'sequential-yank-queue)
+  (add-to-list 'mc--default-cmds-to-run-once 'sequential-yank-mode)
   (add-to-list 'mc--default-cmds-to-run-for-all 'sequential-yank))
 
 (provide 'sequential-yank)
