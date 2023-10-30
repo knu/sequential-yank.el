@@ -32,6 +32,12 @@ Elpaca:
   (("M-W" . sequential-yank-mode)))
 ```
 
+## See Also
+
+- [Pastebot](https://tapbots.com/pastebot/)
+
+    My favorite clipboard manager.  This package is heavily and shamelessly inspired by its [Sequential Paste](https://tapbots.com/pastebot/#sequence) feature.
+
 ## Author
 
 Copyright (c) 2023 Akinori MUSHA.
