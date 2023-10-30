@@ -29,6 +29,7 @@
 ;; URL: https://github.com/knu/sequential-yank.el
 ;; Created: 29 Oct 2023
 ;; Version: 0.1.0
+;; Package-Requires: ((emacs "24.4"))
 ;; Keywords: killing, convenience
 
 ;;; Commentary:
@@ -85,6 +86,7 @@ REPLACE is supported."
       (sequential-yank:push cur-kill))))
 
 (defun sequential-yank:auto-quit-maybe ()
+  "Conditionally quit `sequential-yank-mode' if the queue is empty."
   (remove-hook 'post-command-hook #'sequential-yank:auto-quit-maybe t)
   (when (and sequential-yank-mode
              (null sequential-yank-queue)
