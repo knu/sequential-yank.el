@@ -85,6 +85,8 @@ REPLACE is supported."
         (sequential-yank:replace cur-kill)
       (sequential-yank:push cur-kill))))
 
+(declare-function mc/all-fake-cursors "multiple-cursors-core")
+
 (defun sequential-yank:auto-quit-maybe ()
   "Conditionally quit `sequential-yank-mode' if the queue is empty."
   (remove-hook 'post-command-hook #'sequential-yank:auto-quit-maybe t)
@@ -137,6 +139,10 @@ mark at end, just like `yank'."
   (if sequential-yank-mode
       (advice-add #'kill-new :after #'sequential-yank:ad:kill-new)
     (advice-remove #'kill-new #'sequential-yank:ad:kill-new)))
+
+(defvar mc/cursor-specific-vars)
+(defvar mc--default-cmds-to-run-once)
+(defvar mc--default-cmds-to-run-for-all)
 
 (with-eval-after-load 'multiple-cursors
   (add-to-list 'mc/cursor-specific-vars 'sequential-yank-queue)
