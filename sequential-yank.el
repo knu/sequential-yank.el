@@ -52,15 +52,15 @@
 (defvar sequential-yank-queue nil
   "The sequential yank queue.")
 
-(defun sequential-yank:push (string)
+(defun sequential-yank--push (string)
   "Internal function to push STRING to the sequential yank queue."
   (setq sequential-yank-queue (cons string sequential-yank-queue)))
 
-(defun sequential-yank:replace (string)
+(defun sequential-yank--replace (string)
   "Internal function to replace the last sequential yank string with STRING."
   (setcar sequential-yank-queue string))
 
-(defun sequential-yank:pop ()
+(defun sequential-yank--pop ()
   "Internal function to pop the last string from the sequential yank queue."
   (let* ((p sequential-yank-queue)
          (c (cdr p))
@@ -76,20 +76,20 @@
       (setq sequential-yank-queue nil)
       (car p))))
 
-(defun sequential-yank:ad:kill-new (string &optional replace)
+(defun sequential-yank--ad-kill-new (string &optional replace)
   "Internal advice function for `kill-new' to push STRING to the sequential yank.
 
 REPLACE is supported."
   (let ((cur-kill (car kill-ring)))
     (if replace
-        (sequential-yank:replace cur-kill)
-      (sequential-yank:push cur-kill))))
+        (sequential-yank--replace cur-kill)
+      (sequential-yank--push cur-kill))))
 
 (declare-function mc/all-fake-cursors "multiple-cursors-core")
 
-(defun sequential-yank:auto-quit-maybe ()
+(defun sequential-yank--auto-quit-maybe ()
   "Conditionally quit `sequential-yank-mode' if the queue is empty."
-  (remove-hook 'post-command-hook #'sequential-yank:auto-quit-maybe t)
+  (remove-hook 'post-command-hook #'sequential-yank--auto-quit-maybe t)
   (when (and sequential-yank-mode
              (null sequential-yank-queue)
              (or (not (bound-and-true-p multiple-cursors-mode))
@@ -106,7 +106,7 @@ mark at end, just like `yank'."
   (interactive "*P")
   (or sequential-yank-mode
       (error "Not in sequential-yank-mode"))
-  (let ((string (sequential-yank:pop)))
+  (let ((string (sequential-yank--pop)))
     (if (null string)
         (message "Sequential yank queue is empty.")
       (setq yank-window-start (window-start))
@@ -119,7 +119,7 @@ mark at end, just like `yank'."
       (if (eq this-command t)
           (setq this-command 'yank))
       (or sequential-yank-queue
-          (add-hook 'post-command-hook #'sequential-yank:auto-quit-maybe t t)))
+          (add-hook 'post-command-hook #'sequential-yank--auto-quit-maybe t t)))
     nil))
 
 (defvar sequential-yank-mode-map
@@ -137,8 +137,8 @@ mark at end, just like `yank'."
   :group 'killing
   (setq sequential-yank-queue nil)
   (if sequential-yank-mode
-      (advice-add #'kill-new :after #'sequential-yank:ad:kill-new)
-    (advice-remove #'kill-new #'sequential-yank:ad:kill-new)))
+      (advice-add #'kill-new :after #'sequential-yank--ad-kill-new)
+    (advice-remove #'kill-new #'sequential-yank--ad-kill-new)))
 
 (defvar mc/cursor-specific-vars)
 (defvar mc--default-cmds-to-run-once)
