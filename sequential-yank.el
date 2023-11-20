@@ -1,5 +1,12 @@
 ;;; sequential-yank.el --- Minor mode to copy and paste strings sequentially
 
+;; Author: Akinori MUSHA <knu@iDaemons.org>
+;; URL: https://github.com/knu/sequential-yank.el
+;; Created: 29 Oct 2023
+;; Version: 0.1.1
+;; Package-Requires: ((emacs "24.4"))
+;; Keywords: killing, convenience
+
 ;; Copyright (c) 2023 Akinori MUSHA
 ;;
 ;; All rights reserved.
@@ -24,13 +31,6 @@
 ;; LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
 ;; OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 ;; SUCH DAMAGE.
-
-;; Author: Akinori MUSHA <knu@iDaemons.org>
-;; URL: https://github.com/knu/sequential-yank.el
-;; Created: 29 Oct 2023
-;; Version: 0.1.1
-;; Package-Requires: ((emacs "24.4"))
-;; Keywords: killing, convenience
 
 ;;; Commentary:
 ;;
