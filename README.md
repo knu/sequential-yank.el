@@ -23,11 +23,10 @@ Manual installation:
 ; (define-key sequential-yank-mode-map (kbd "M-Y") #'sequential-yank)
 ```
 
-Elpaca:
+This package is [available via MELPA](https://melpa.org/#/sequential-yank).
 
 ```emacs-lisp
 (use-package sequential-yank
-  :elpaca (sequential-yank :fetcher github :repo "knu/sequential-yank.el")
   :bind
   (("M-W" . sequential-yank-mode)))
 ```
