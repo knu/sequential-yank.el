@@ -3,7 +3,7 @@
 ;; Author: Akinori MUSHA <knu@iDaemons.org>
 ;; URL: https://github.com/knu/sequential-yank.el
 ;; Created: 29 Oct 2023
-;; Version: 0.1.1
+;; Version: 0.1.2
 ;; Package-Requires: ((emacs "24.4"))
 ;; Keywords: killing, convenience
 
