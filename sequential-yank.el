@@ -122,6 +122,16 @@ mark at end, just like `yank'."
           (add-hook 'post-command-hook #'sequential-yank--auto-quit-maybe t t)))
     nil))
 
+(defgroup sequential-yank nil "Sequential Yank" :group 'killing)
+
+(defcustom sequential-yank-mode-lighter " SeqYank[%d]"
+  "Format string for the mode lighter in `sequential-yank-mode'."
+  :group 'sequential-yank)
+
+(defun sequential-yank-mode-lighter ()
+  "Return a string to be displayed as the mode lighter in `sequential-yank-mode'."
+  (format sequential-yank-mode-lighter (length sequential-yank-queue)))
+
 (defvar sequential-yank-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "M-Y") #'sequential-yank)
@@ -132,9 +142,9 @@ mark at end, just like `yank'."
 (define-minor-mode sequential-yank-mode
   "Toggle sequential yank mode."
   :global t
-  :lighter " SeqYank"
+  :lighter (:eval (sequential-yank-mode-lighter))
   :keymap sequential-yank-mode-map
-  :group 'killing
+  :group 'sequential-yank
   (setq sequential-yank-queue nil)
   (if sequential-yank-mode
       (advice-add #'kill-new :after #'sequential-yank--ad-kill-new)
