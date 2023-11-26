@@ -126,6 +126,7 @@ mark at end, just like `yank'."
 
 (defcustom sequential-yank-mode-lighter " SeqYank[%d]"
   "Format string for the mode lighter in `sequential-yank-mode'."
+  :type 'string
   :group 'sequential-yank)
 
 (defun sequential-yank-mode-lighter ()
