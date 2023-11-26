@@ -3,7 +3,7 @@
 ;; Author: Akinori MUSHA <knu@iDaemons.org>
 ;; URL: https://github.com/knu/sequential-yank.el
 ;; Created: 29 Oct 2023
-;; Version: 0.1.2
+;; Version: 0.1.3
 ;; Package-Requires: ((emacs "24.4"))
 ;; Keywords: killing, convenience
 
@@ -140,14 +140,29 @@ mark at end, just like `yank'."
 
 ;;;###autoload
 (define-minor-mode sequential-yank-mode
-  "Toggle sequential yank mode."
+  "Toggle sequential yank mode.
+
+With a non-nil list argument (\\[universal-argument]), the sequential yank queue
+is initialized with the last string of `kill-ring'.
+
+With a numeric argument, the sequential yank queue is initialized
+with the last ARG strings of `kill-ring'.
+
+Otherwise, the sequential yank queue is initialized with an empty list."
   :global t
   :lighter (:eval (sequential-yank-mode-lighter))
   :keymap sequential-yank-mode-map
   :group 'sequential-yank
-  (setq sequential-yank-queue nil)
   (if sequential-yank-mode
-      (advice-add #'kill-new :after #'sequential-yank--ad-kill-new)
+      (let* ((arg current-prefix-arg)
+             (n (cond
+                 ((numberp arg) arg)
+                 ((null arg) 0)
+                 ((listp arg) 1)
+                 (t 0))))
+        (setq sequential-yank-queue (seq-take kill-ring n))
+        (advice-add #'kill-new :after #'sequential-yank--ad-kill-new))
+    (setq sequential-yank-queue nil)
     (advice-remove #'kill-new #'sequential-yank--ad-kill-new)))
 
 (defvar mc/cursor-specific-vars)
